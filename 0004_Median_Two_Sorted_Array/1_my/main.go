@@ -4,9 +4,11 @@ func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
 	len1 := len(nums1)
 	len2 := len(nums2)
 
-	tIdx := (len1 + len2) / 2
+	tmpIdx := (len1 + len2) / 2
 
-	tmpIdx := tIdx
+	if (len1+len2)%2 == 1 {
+		tmpIdx = tmpIdx + 1
+	}
 	cIdx := tmpIdx / 2
 
 	for cIdx > 0 {
@@ -33,10 +35,7 @@ func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
 		return float64(s[0]+s[1]) / 2
 
 	}
-	if len(s) == 1 {
-		return float64(s[0])
-	}
-	return float64(s[1])
+	return float64(s[0])
 }
 
 func mergeSliceForMinN(s1, s2 []int, n int) []int {
