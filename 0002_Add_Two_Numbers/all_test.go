@@ -80,11 +80,13 @@ func TestAddTwoNumbers(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		lo := addTwoNumbers(table.l1, table.l2)
+		lo := addTwoNumbersV2(table.l1, table.l2)
 		if !compareList(lo, table.lo) {
+			dumpList(table.l1)
+			dumpList(table.l2)
 			dumpList(lo)
 			dumpList(table.lo)
-			t.Error("failure")
+			t.Fatal("failure")
 		}
 	}
 }
