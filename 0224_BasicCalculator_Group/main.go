@@ -10,11 +10,12 @@ type token string
 const EOF token = "EOF"
 
 var precedenceLookup = map[token]int{
-	"+":  1,
-	"-":  1,
-	"*":  2,
-	"/":  2,
-	"**": 3,
+	"+":      1,
+	"-":      1,
+	"*":      2,
+	"/":      2,
+	"**":     3,
+	"prefix": 4,
 }
 
 var funcLookup = map[token]func(int, int) int{
@@ -35,7 +36,7 @@ func newLexer(s string) *lexer {
 
 	for i := 0; i < len(s); i++ {
 		switch s[i] {
-		case '+', '-', '/':
+		case '+', '-', '/', '(', ')':
 			toks = append(toks, token(s[i]))
 			continue
 		case '*':
@@ -85,14 +86,33 @@ func calculate(s string) int {
 }
 
 func (l *lexer) calcExpr(precedence int) int {
-	left := toNum(l.curToken())
+	var left int
+	switch l.curToken() {
+	case "(":
+		l.nextToken()
+		left = l.calcExpr(0)
+		l.nextToken() // ")"
+	case "-":
+		l.nextToken()
+		left = -l.calcExpr(precedenceLookup["prefix"])
+	default:
+		left = toNum(l.curToken())
+	}
+
 	for l.peekToken() != EOF && precedence < precedenceLookup[l.peekToken()] {
 		l.nextToken()
 		op := l.curToken()
 		opPrecedence, opFunc := precedenceLookup[op], funcLookup[op]
 
 		l.nextToken()
-		left = opFunc(left, l.calcExpr(opPrecedence))
+		switch l.curToken() {
+		case "(":
+			l.nextToken()
+			left = opFunc(left, l.calcExpr(0))
+			l.nextToken() // ")"
+		default:
+			left = opFunc(left, l.calcExpr(opPrecedence))
+		}
 	}
 	return left
 }
