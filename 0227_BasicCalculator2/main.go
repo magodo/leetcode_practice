@@ -1,23 +1,28 @@
 package foo
 
-import "strconv"
+import (
+	"math"
+	"strconv"
+)
 
 type token string
 
 const EOF token = "EOF"
 
 var precedenceLookup = map[token]int{
-	"+": 1,
-	"-": 1,
-	"*": 2,
-	"/": 2,
+	"+":  1,
+	"-":  1,
+	"*":  2,
+	"/":  2,
+	"**": 3,
 }
 
 var funcLookup = map[token]func(int, int) int{
-	"+": func(i, j int) int { return i + j },
-	"-": func(i, j int) int { return i - j },
-	"*": func(i, j int) int { return i * j },
-	"/": func(i, j int) int { return i / j },
+	"+":  func(i, j int) int { return i + j },
+	"-":  func(i, j int) int { return i - j },
+	"*":  func(i, j int) int { return i * j },
+	"/":  func(i, j int) int { return i / j },
+	"**": func(i, j int) int { return int(math.Pow(float64(i), float64(j))) },
 }
 
 type lexer struct {
@@ -30,7 +35,15 @@ func newLexer(s string) *lexer {
 
 	for i := 0; i < len(s); i++ {
 		switch s[i] {
-		case '+', '-', '*', '/':
+		case '+', '-', '/':
+			toks = append(toks, token(s[i]))
+			continue
+		case '*':
+			if i < len(s)-1 && s[i+1] == '*' {
+				i++
+				toks = append(toks, token("**"))
+				continue
+			}
 			toks = append(toks, token(s[i]))
 			continue
 		case ' ':

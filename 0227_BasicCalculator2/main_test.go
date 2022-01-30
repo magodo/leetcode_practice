@@ -31,6 +31,10 @@ func TestCalculator(t *testing.T) {
 			"5 +3/2*4- 1",
 			8,
 		},
+		{
+			"5 +4*3**2/2- 1",
+			22,
+		},
 	}
 
 	for i, tt := range cases {
